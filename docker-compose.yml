@@ -1,0 +1,15 @@
+services:
+  ww-code-bot:
+    build: .
+    image: ww-code-bot:latest
+    container_name: ww-code-bot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Force the DB into the mounted volume regardless of .env.
+      DB_PATH: /data/codes.db
+    volumes:
+      - ww-code-data:/data
+
+volumes:
+  ww-code-data:
