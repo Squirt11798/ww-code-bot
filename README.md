@@ -120,4 +120,13 @@ ww-code-bot/
 - This bot **finds and announces** codes; it does not auto-redeem them. Redeem at
   the [official page](https://wutheringwaves.kurogames.com/en/main/news/redeem)
   (Union Level 2+ required).
+
+## Legal
+
+This is an unofficial, fan-made tool provided free of charge, **"as is," with no
+warranty**, and is in **active development**. It is **not affiliated with Kuro
+Games, Wuthering Waves, or Discord**. See:
+
+- [Terms of Service](TERMS_OF_SERVICE.md)
+- [Privacy Policy](PRIVACY_POLICY.md)
 ```
