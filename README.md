@@ -20,7 +20,20 @@ already posted, and announces only genuinely new codes.
 - **Slash commands** — `/checknow`, `/codes`, `/redeem`.
 - **Dockerized** — `docker compose up -d` and you're running.
 
-## Quick start (Docker)
+## One-line install (Ubuntu 24.04)
+
+Installs Docker, fetches the bot, prompts for your token + channel ID, and
+launches it with auto-restart on boot:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash
+```
+
+Installs to `/opt/ww-code-bot`. To reconfigure later:
+`sudo RECONFIGURE=1 bash /opt/ww-code-bot/install.sh`. Non-interactive installs
+can pre-set values: `sudo DISCORD_TOKEN=xxx CHANNEL_ID=123 bash install.sh`.
+
+## Quick start (Docker, manual)
 
 ```bash
 cp .env.example .env
