@@ -40,6 +40,7 @@ def _get_bool(name: str, default: bool) -> bool:
 class Config:
     token: str
     channel_id: int
+    guild_id: int = 0
     ping_role_id: int = 0
     poll_interval_minutes: int = 30
     db_path: str = "/data/codes.db"
@@ -65,6 +66,7 @@ class Config:
         return cls(
             token=token,
             channel_id=channel_id,
+            guild_id=_get_int("GUILD_ID", 0),
             ping_role_id=_get_int("PING_ROLE_ID", 0),
             poll_interval_minutes=max(5, _get_int("POLL_INTERVAL_MINUTES", 30)),
             db_path=os.getenv("DB_PATH", "/data/codes.db").strip() or "/data/codes.db",

@@ -30,8 +30,21 @@ class CodeBot(commands.Bot):
         self.aggregator = Aggregator(build_sources(config.enabled_sources))
 
     async def setup_hook(self) -> None:
-        # Register the slash commands globally and start the polling loop.
-        await self.tree.sync()
+        # Register slash commands. If a guild is configured, sync to it so the
+        # commands appear INSTANTLY; otherwise sync globally (can take ~1 hour
+        # to propagate).
+        if self.config.guild_id:
+            guild = discord.Object(id=self.config.guild_id)
+            self.tree.copy_global_to(guild=guild)
+            synced = await self.tree.sync(guild=guild)
+            log.info("Synced %d command(s) to guild %s (instant).", len(synced), self.config.guild_id)
+        else:
+            synced = await self.tree.sync()
+            log.info(
+                "Synced %d command(s) globally — can take up to ~1h to appear. "
+                "Set GUILD_ID in .env for instant registration.",
+                len(synced),
+            )
         self.poll_loop.change_interval(minutes=self.config.poll_interval_minutes)
         self.poll_loop.start()
 
