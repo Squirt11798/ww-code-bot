@@ -48,6 +48,20 @@ can pre-set values: `sudo DISCORD_TOKEN=xxx CHANNEL_ID=123 bash install.sh`.
 > If the repo is **public**, you can skip the tarball entirely:
 > `curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash`
 
+## Updating
+
+Pull the latest code, keep your `.env` + database, rebuild, and restart — one
+command (works for both tarball and clone installs, requires the repo public):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/update.sh | sudo bash
+```
+
+Or, once installed: `sudo bash /opt/ww-code-bot/update.sh`. Update to a specific
+branch/tag with `sudo bash /opt/ww-code-bot/update.sh v2`. Prefer tarballs? Build
+a new one with `./build-release.sh`, scp it over, and re-run `install.sh` — that
+also preserves your `.env`.
+
 ## Quick start (Docker, manual)
 
 ```bash
