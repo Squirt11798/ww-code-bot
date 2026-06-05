@@ -1,0 +1,9 @@
+# Force LF on files that must run on Linux, regardless of the author's OS.
+# Without this, Windows checkouts can introduce CRLF and break shell scripts
+# ("bad interpreter") and the Docker build.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.py        text eol=lf
+.env.example text eol=lf
