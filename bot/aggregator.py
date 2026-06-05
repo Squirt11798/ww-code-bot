@@ -30,6 +30,7 @@ class Aggregator:
 
         merged: dict[str, Code] = {}
         sources_for: dict[str, set[str]] = {}
+        links_for: dict[str, dict[str, str]] = {}  # key -> {source_name: url}
 
         for src, result in zip(self.sources, results):
             if isinstance(result, Exception):
@@ -38,6 +39,9 @@ class Aggregator:
             for code in result:
                 key = code.key()
                 sources_for.setdefault(key, set()).add(src.name)
+                link_map = links_for.setdefault(key, {})
+                for name, url in code.source_links:
+                    link_map.setdefault(name, url)
                 # Prefer the first non-empty reward we see across sources.
                 if key not in merged:
                     merged[key] = code
@@ -48,7 +52,10 @@ class Aggregator:
         out: list[Code] = []
         for key, code in merged.items():
             srcs = ", ".join(sorted(sources_for.get(key, set())))
-            out.append(Code(code=code.code, reward=code.reward, source=srcs))
+            link_pairs = tuple(sorted(links_for.get(key, {}).items()))
+            out.append(
+                Code(code=code.code, reward=code.reward, source=srcs, source_links=link_pairs)
+            )
 
         log.info("Aggregated %d unique codes from %d sources", len(out), len(self.sources))
         return out

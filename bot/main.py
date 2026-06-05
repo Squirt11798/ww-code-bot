@@ -117,7 +117,10 @@ class CodeBot(commands.Bot):
         if code.reward:
             embed.add_field(name="Reward", value=code.reward, inline=False)
         embed.add_field(name="Redeem", value=f"[Official redemption page]({REDEEM_URL})", inline=False)
-        if code.source:
+        if code.source_links:
+            links = " · ".join(f"[{name}]({url})" for name, url in code.source_links)
+            embed.add_field(name="Source", value=links, inline=False)
+        elif code.source:
             embed.set_footer(text=f"Found via: {code.source}")
         return embed
 

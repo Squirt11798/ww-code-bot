@@ -53,6 +53,14 @@ def test_dedupes_case_insensitively() -> None:
     assert _extract(html) == {"WUTHERINGGIFT"}
 
 
+def test_codes_carry_source_link() -> None:
+    src = HtmlSource(name="game8", url="https://example.com/codes")
+    codes = src.extract("<td><code>WUTHERINGGIFT</code></td>")
+    assert len(codes) == 1
+    assert codes[0].source == "game8"
+    assert codes[0].source_links == (("game8", "https://example.com/codes"),)
+
+
 def test_skips_script_and_style() -> None:
     html = """
     <script>var TOKENABC = 'SECRETCODE';</script>

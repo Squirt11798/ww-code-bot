@@ -117,7 +117,11 @@ class HtmlSource(Source):
                     continue
                 key = match.upper()
                 if key not in found:
-                    found[key] = Code(code=match, source=self.name)
+                    found[key] = Code(
+                        code=match,
+                        source=self.name,
+                        source_links=((self.name, self.url),),
+                    )
 
         log.debug("[%s] extracted %d candidate codes", self.name, len(found))
         return list(found.values())
