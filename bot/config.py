@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 
 from dotenv import load_dotenv
 
+from .sources import DEFAULT_ENABLED
+
 # Load a local .env if present (no-op in Docker where env is injected directly).
 load_dotenv()
 
@@ -42,7 +44,7 @@ class Config:
     poll_interval_minutes: int = 30
     db_path: str = "/data/codes.db"
     seed_silently: bool = True
-    enabled_sources: list[str] = field(default_factory=lambda: ["game8", "pockettactics", "pcgamesn"])
+    enabled_sources: list[str] = field(default_factory=lambda: list(DEFAULT_ENABLED))
     log_level: str = "INFO"
 
     @classmethod
@@ -56,11 +58,9 @@ class Config:
             raise SystemExit("CHANNEL_ID is not set or invalid.")
 
         sources_raw = os.getenv("ENABLED_SOURCES", "").strip()
-        enabled = [s.strip().lower() for s in sources_raw.split(",") if s.strip()] or [
-            "game8",
-            "pockettactics",
-            "pcgamesn",
-        ]
+        enabled = [
+            s.strip().lower() for s in sources_raw.split(",") if s.strip()
+        ] or list(DEFAULT_ENABLED)
 
         return cls(
             token=token,

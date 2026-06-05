@@ -105,6 +105,14 @@ def test_codes_carry_source_link() -> None:
     assert codes[0].source_links == (("game8", "https://example.com/codes"),)
 
 
+def test_oversized_active_list_is_skipped() -> None:
+    # A stale dump with no expired section should trip the sanity cap and yield
+    # nothing rather than flooding the channel.
+    rows = "".join(f"<li>CODECODE{i:03d} — 100 Astrite</li>" for i in range(40))
+    html = f"<h2>All active codes</h2><ul>{rows}</ul>"
+    assert _extract(html) == set()
+
+
 def test_skips_script_and_style() -> None:
     html = """
     <script>var TOKENABC = 'SECRETCODE';</script>

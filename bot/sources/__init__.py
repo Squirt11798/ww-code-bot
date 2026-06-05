@@ -23,15 +23,22 @@ ALL_SOURCES: dict[str, Source] = {
         name="game8",
         url="https://game8.co/games/Wuthering-Waves/archives/453149",
     ),
-    "pockettactics": HtmlSource(
-        name="pockettactics",
-        url="https://www.pockettactics.com/wuthering-waves/codes",
-    ),
     "pcgamesn": HtmlSource(
         name="pcgamesn",
         url="https://www.pcgamesn.com/wuthering-waves/codes",
     ),
+    # NOTE: pockettactics lists every code it has ever seen under one "active"
+    # heading with no expired section, so it floods expired codes. It is NOT in
+    # DEFAULT_ENABLED. Only enable it if you add expired-handling for that site.
+    "pockettactics": HtmlSource(
+        name="pockettactics",
+        url="https://www.pockettactics.com/wuthering-waves/codes",
+    ),
 }
+
+# Sources trusted enough to run by default — they cleanly separate active vs
+# expired codes, which our parser relies on.
+DEFAULT_ENABLED: list[str] = ["game8", "pcgamesn"]
 
 
 def build_sources(enabled: list[str]) -> list[Source]:
@@ -44,4 +51,4 @@ def build_sources(enabled: list[str]) -> list[Source]:
     return out
 
 
-__all__ = ["Source", "HtmlSource", "ALL_SOURCES", "build_sources"]
+__all__ = ["Source", "HtmlSource", "ALL_SOURCES", "DEFAULT_ENABLED", "build_sources"]

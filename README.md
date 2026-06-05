@@ -10,9 +10,10 @@ already posted, and announces only genuinely new codes.
 
 ## Features
 
-- **Multi-source + dedupe** — scrapes Game8, Pocket Tactics, and PCGamesN; a code
-  found on any source is posted once, attributed to every source that saw it. If
-  one site is down or changes layout, the others still work.
+- **Multi-source + dedupe** — scrapes Game8 and PCGamesN (both cleanly separate
+  active vs expired codes); a code found on any source is posted once, attributed
+  to every source that saw it. If one site is down or changes layout, the other
+  still works.
 - **Post-once memory** — a small SQLite file tracks seen codes, so restarts don't
   re-spam the channel.
 - **Silent first-run seeding** — on first launch it records the current backlog
@@ -112,7 +113,7 @@ All config is via environment variables (see [`.env.example`](.env.example)):
 | `POLL_INTERVAL_MINUTES` | `30` | How often to check (min 5) |
 | `DB_PATH` | `/data/codes.db` | SQLite location |
 | `SEED_SILENTLY` | `true` | First run records existing codes without posting |
-| `ENABLED_SOURCES` | `game8,pockettactics,pcgamesn` | Which scrapers to run |
+| `ENABLED_SOURCES` | `game8,pcgamesn` | Which scrapers to run |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |
 
 ## How code detection works
@@ -140,6 +141,21 @@ This is best-effort and depends on each site labelling its codes — it is *not*
 guarantee the code still works (we don't redeem-test against Kuro's servers). If
 no section structure is found, it falls back to the broad scan so it never stops
 posting. Cross-checking across multiple sources is the main validity signal.
+
+## Dry run (test without posting)
+
+See exactly what the bot *would* post — fetches the live sources, runs the full
+parser, prints the result, and sends **nothing** to Discord (no token needed):
+
+```bash
+sudo bash /opt/ww-code-bot/dryrun.sh                 # on the VM (via Docker)
+sudo LOG_LEVEL=DEBUG bash /opt/ww-code-bot/dryrun.sh # verbose parse detail
+python -m bot.dryrun                                 # local, in a venv
+```
+
+Run this on the box the bot will actually run from — some community sites block
+other IPs. If a source returns more than `MAX_ACTIVE_CODES` (15), it's treated as
+a broken/stale layout and skipped that cycle rather than flooding the channel.
 
 ## Tests
 

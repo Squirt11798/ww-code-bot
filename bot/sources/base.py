@@ -59,6 +59,12 @@ BEARING_TAGS = ("code", "strong", "b", "td", "li", "span", "p", "h2", "h3", "mar
 # Structural elements walked in document order for the section-aware parse.
 STRUCTURE_TAGS = ("h1", "h2", "h3", "h4", "h5", "tr", "li", "dt", "dd")
 
+# Sanity cap: Wuthering Waves realistically never has more than a handful of
+# active codes at once. If a source returns more than this, its layout has
+# probably broken or it's dumping a stale "all codes ever" list — skip it this
+# cycle rather than flood the channel with expired codes.
+MAX_ACTIVE_CODES = 15
+
 # A heading or row containing one of these words marks the code(s) as no longer
 # valid. Note: matches the whole word "expired", NOT "expires" (which is an
 # expiry *date* on a still-active code — handled separately below).
@@ -140,11 +146,21 @@ class HtmlSource(Source):
                 "[%s] structured: %d codes (%d active, %d expired skipped)",
                 self.name, len(codes), len(active), len(codes) - len(active),
             )
-            return active
+            return self._sanity_check(active)
 
         broad = self._broad_extract(soup)
         log.debug("[%s] broad fallback: %d codes", self.name, len(broad))
-        return broad
+        return self._sanity_check(broad)
+
+    def _sanity_check(self, codes: list[Code]) -> list[Code]:
+        if len(codes) > MAX_ACTIVE_CODES:
+            log.warning(
+                "[%s] returned %d active codes (> cap %d) — likely a layout break "
+                "or stale dump; skipping this source this cycle.",
+                self.name, len(codes), MAX_ACTIVE_CODES,
+            )
+            return []
+        return codes
 
     def _structured_extract(self, soup: BeautifulSoup) -> list[Code]:
         """Walk headings + rows in order, tracking active/expired sections."""
