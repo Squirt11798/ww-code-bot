@@ -109,7 +109,11 @@ else
   info "Local source not found — cloning from GitHub (requires a public/authenticated repo)..."
   command -v git >/dev/null 2>&1 || { apt-get update -y; apt-get install -y git; }
   if [ -d "$INSTALL_DIR/.git" ]; then
-    git -C "$INSTALL_DIR" pull --ff-only
+    # Deployment dir: force it to match the repo (discards any local edits /
+    # leftover files). Your gitignored .env is preserved.
+    info "Updating existing checkout to latest main..."
+    git -C "$INSTALL_DIR" fetch --depth 1 origin main
+    git -C "$INSTALL_DIR" reset --hard FETCH_HEAD
   else
     mkdir -p "$(dirname "$INSTALL_DIR")"
     git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
