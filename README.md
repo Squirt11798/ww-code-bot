@@ -20,18 +20,34 @@ already posted, and announces only genuinely new codes.
 - **Slash commands** — `/checknow`, `/codes`, `/redeem`.
 - **Dockerized** — `docker compose up -d` and you're running.
 
-## One-line install (Ubuntu 24.04)
+## Install on Ubuntu 24.04 from a release tarball (private repo)
 
-Installs Docker, fetches the bot, prompts for your token + channel ID, and
-launches it with auto-restart on boot:
+Build the tarball on your dev machine from the repo root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash
+mkdir -p releases
+git archive --format=tar.gz --prefix=ww-code-bot/ \
+  -o releases/ww_code_bot_v1.tar.gz HEAD
 ```
 
-Installs to `/opt/ww-code-bot`. To reconfigure later:
+Copy it to the VM and install:
+
+```bash
+scp releases/ww_code_bot_v1.tar.gz user@your-vm:~/
+ssh user@your-vm
+tar -xzf ww_code_bot_v1.tar.gz
+cd ww-code-bot
+sudo bash install.sh
+```
+
+The installer detects the local files, installs Docker, copies the bot to
+`/opt/ww-code-bot`, prompts for your token + channel ID, writes a `0600` `.env`,
+and launches with auto-restart on boot. Reconfigure later with
 `sudo RECONFIGURE=1 bash /opt/ww-code-bot/install.sh`. Non-interactive installs
 can pre-set values: `sudo DISCORD_TOKEN=xxx CHANNEL_ID=123 bash install.sh`.
+
+> If the repo is **public**, you can skip the tarball entirely:
+> `curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash`
 
 ## Quick start (Docker, manual)
 

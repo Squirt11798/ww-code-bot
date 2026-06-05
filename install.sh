@@ -2,15 +2,17 @@
 #
 # ww-code-bot installer for Ubuntu 24.04 (noble)
 #
-# Installs Docker Engine + Compose plugin, fetches the bot, prompts for your
+# Installs Docker Engine + Compose plugin, installs the bot, prompts for your
 # Discord token and channel ID, writes a locked-down .env, and launches the
 # container with auto-restart on boot.
 #
-# Usage (one-liner):
-#   curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash
-#
-# Or clone first and run:
+# Usage (from a release tarball — recommended for a private repo):
+#   tar -xzf ww_code_bot_vX.tar.gz
+#   cd ww-code-bot
 #   sudo bash install.sh
+#
+# Usage (one-liner, only works if the repo is public):
+#   curl -fsSL https://raw.githubusercontent.com/Squirt11798/ww-code-bot/main/install.sh | sudo bash
 #
 # Non-interactive (e.g. automation): pre-set the values in the environment:
 #   sudo DISCORD_TOKEN=xxx CHANNEL_ID=123 bash install.sh
@@ -82,16 +84,36 @@ fi
 
 # Make sure Docker starts on boot and is running now.
 systemctl enable --now docker >/dev/null 2>&1 || true
-git --version >/dev/null 2>&1 || apt-get install -y git
 
-# ── 2. Fetch / update the bot ───────────────────────────────────────────────
-if [ -d "$INSTALL_DIR/.git" ]; then
-  info "Updating existing install at $INSTALL_DIR ..."
-  git -C "$INSTALL_DIR" pull --ff-only
+# ── 2. Install the bot files ────────────────────────────────────────────────
+# Where is this script running from? If it sits next to the bot source (i.e. we
+# were extracted from a release tarball or cloned), install from those local
+# files. Otherwise fall back to cloning from GitHub (public repos only).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
+
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/docker-compose.yml" ] && [ -d "$SCRIPT_DIR/bot" ]; then
+  if [ "$SCRIPT_DIR" = "$INSTALL_DIR" ]; then
+    info "Installing in place at $INSTALL_DIR."
+  else
+    info "Installing bot files into $INSTALL_DIR ..."
+    mkdir -p "$INSTALL_DIR"
+    # Copy everything except an existing .env (preserve config) and dev cruft.
+    for item in "$SCRIPT_DIR"/* "$SCRIPT_DIR"/.dockerignore "$SCRIPT_DIR"/.env.example "$SCRIPT_DIR"/.gitattributes; do
+      [ -e "$item" ] || continue
+      base="$(basename "$item")"
+      case "$base" in .git|.venv|releases|.env) continue ;; esac
+      cp -a "$item" "$INSTALL_DIR/"
+    done
+  fi
 else
-  info "Cloning bot into $INSTALL_DIR ..."
-  mkdir -p "$(dirname "$INSTALL_DIR")"
-  git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
+  info "Local source not found — cloning from GitHub (requires a public/authenticated repo)..."
+  command -v git >/dev/null 2>&1 || { apt-get update -y; apt-get install -y git; }
+  if [ -d "$INSTALL_DIR/.git" ]; then
+    git -C "$INSTALL_DIR" pull --ff-only
+  else
+    mkdir -p "$(dirname "$INSTALL_DIR")"
+    git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
+  fi
 fi
 cd "$INSTALL_DIR"
 

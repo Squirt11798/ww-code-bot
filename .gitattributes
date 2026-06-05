@@ -7,3 +7,7 @@ Dockerfile  text eol=lf
 *.yaml      text eol=lf
 *.py        text eol=lf
 .env.example text eol=lf
+
+# Keep release tarballs and local venvs out of `git archive` output.
+releases/   export-ignore
+.venv/      export-ignore
