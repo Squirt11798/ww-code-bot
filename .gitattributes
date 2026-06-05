@@ -8,6 +8,9 @@ Dockerfile  text eol=lf
 *.py        text eol=lf
 .env.example text eol=lf
 
-# Keep release tarballs and local venvs out of `git archive` output.
-releases/   export-ignore
-.venv/      export-ignore
+# Keep release tarballs, build tooling, and local venvs out of the runtime
+# tarball produced by `git archive`.
+releases/        export-ignore
+.venv/           export-ignore
+build-release.sh export-ignore
+VERSION          export-ignore

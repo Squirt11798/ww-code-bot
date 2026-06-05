@@ -20,17 +20,16 @@ already posted, and announces only genuinely new codes.
 - **Slash commands** — `/checknow`, `/codes`, `/redeem`.
 - **Dockerized** — `docker compose up -d` and you're running.
 
-## Install on Ubuntu 24.04 from a release tarball (private repo)
+## Install on Ubuntu 24.04 from a release tarball
 
-Build the tarball on your dev machine from the repo root:
+Build the tarball on your dev machine from the repo root (auto-increments the
+version in `VERSION`):
 
 ```bash
-mkdir -p releases
-git archive --format=tar.gz --prefix=ww-code-bot/ \
-  -o releases/ww_code_bot_v1.tar.gz HEAD
+./build-release.sh
 ```
 
-Copy it to the VM and install:
+Copy the resulting `releases/ww_code_bot_vN.tar.gz` to the VM and install:
 
 ```bash
 scp releases/ww_code_bot_v1.tar.gz user@your-vm:~/
