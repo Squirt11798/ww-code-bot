@@ -53,6 +53,50 @@ def test_dedupes_case_insensitively() -> None:
     assert _extract(html) == {"WUTHERINGGIFT"}
 
 
+def test_excludes_expired_section() -> None:
+    html = """
+    <h2>Active Codes</h2>
+    <table><tr><td><code>GOODCODE1</code></td><td>100 Astrite</td></tr></table>
+    <h2>Expired Codes</h2>
+    <table><tr><td><code>DEADCODE2</code></td><td>no longer works</td></tr></table>
+    """
+    assert _extract(html) == {"GOODCODE1"}
+
+
+def test_row_marked_expired_is_skipped() -> None:
+    html = """
+    <h2>Codes</h2>
+    <table>
+      <tr><td>LIVECODE9</td><td>100 Astrite</td><td>Active</td></tr>
+      <tr><td>GONECODE8</td><td>—</td><td>Expired</td></tr>
+    </table>
+    """
+    assert _extract(html) == {"LIVECODE9"}
+
+
+def test_extracts_reward_and_expiry() -> None:
+    html = """
+    <h2>Active Codes</h2>
+    <ul><li>SUMMERGIFT — 100 Astrite, 50000 Shell Credits (Expires June 30)</li></ul>
+    """
+    codes = HtmlSource(name="t", url="x").extract(html)
+    assert len(codes) == 1
+    c = codes[0]
+    assert c.code == "SUMMERGIFT"
+    assert c.active is True
+    assert c.reward is not None and "Astrite" in c.reward
+    assert c.expires == "Expires June 30"
+
+
+def test_active_code_with_expires_word_not_marked_expired() -> None:
+    # "Expires" must NOT trip the expired-section detector ("expired").
+    html = "<ul><li>NICECODE5 — 100 Astrite, expires July 5</li></ul>"
+    codes = HtmlSource(name="t", url="x").extract(html)
+    assert len(codes) == 1
+    assert codes[0].active is True
+    assert codes[0].expires == "Expires July 5"
+
+
 def test_codes_carry_source_link() -> None:
     src = HtmlSource(name="game8", url="https://example.com/codes")
     codes = src.extract("<td><code>WUTHERINGGIFT</code></td>")

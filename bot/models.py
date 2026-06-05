@@ -20,6 +20,10 @@ class Code:
     # One (name, url) pair per site that reported this code, so the Discord post
     # can link straight to where it was found.
     source_links: tuple[tuple[str, str], ...] = ()
+    # Whether the source(s) list this code as currently active (vs expired).
+    active: bool = True
+    # Human-readable expiry text if a source published one, e.g. "Expires June 30".
+    expires: str | None = None
 
     def key(self) -> str:
         """Normalised identity used for de-duplication and storage."""

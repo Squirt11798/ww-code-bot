@@ -128,6 +128,19 @@ cost of occasional false positives, which the blocklist absorbs. **If a new fals
 positive sneaks through, add it to `BLOCKLIST`.** To add a new site, append one
 line to `ALL_SOURCES` in [`bot/sources/__init__.py`](bot/sources/__init__.py).
 
+### Active vs expired, rewards, and expiry
+
+The parser is **section-aware**: it walks the page's headings and rows in order,
+tracking whether it's in an "Active" or "Expired" section, and **only returns
+codes that are currently active** (a row flagged `Expired` is also skipped). When
+a source publishes them, it also extracts the **reward** and an **expiry**
+(e.g. `Expires June 30`), which appear in the Discord post.
+
+This is best-effort and depends on each site labelling its codes — it is *not* a
+guarantee the code still works (we don't redeem-test against Kuro's servers). If
+no section structure is found, it falls back to the broad scan so it never stops
+posting. Cross-checking across multiple sources is the main validity signal.
+
 ## Tests
 
 ```bash

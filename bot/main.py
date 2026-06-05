@@ -116,6 +116,8 @@ class CodeBot(commands.Bot):
         )
         if code.reward:
             embed.add_field(name="Reward", value=code.reward, inline=False)
+        if code.expires:
+            embed.add_field(name="⏳ Expires", value=code.expires, inline=False)
         embed.add_field(name="Redeem", value=f"[Official redemption page]({REDEEM_URL})", inline=False)
         if code.source_links:
             links = " · ".join(f"[{name}]({url})" for name, url in code.source_links)
@@ -142,7 +144,12 @@ def _register_commands(bot: CodeBot) -> None:
         if not current:
             await interaction.followup.send("Couldn't fetch any codes right now — try again later.", ephemeral=True)
             return
-        listing = "\n".join(f"• `{c.code}`" + (f" — {c.reward}" if c.reward else "") for c in current)
+        listing = "\n".join(
+            f"• `{c.code}`"
+            + (f" — {c.reward}" if c.reward else "")
+            + (f" _({c.expires})_" if c.expires else "")
+            for c in current
+        )
         embed = discord.Embed(
             title="🌊 Current Wuthering Waves Codes",
             description=listing[:4000],
