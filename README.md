@@ -18,7 +18,8 @@ already posted, and announces only genuinely new codes.
   re-spam the channel.
 - **Silent first-run seeding** — on first launch it records the current backlog
   as "seen" without posting (configurable), so you only ever get *new* drops.
-- **Slash commands** — `/checknow`, `/codes`, `/redeem`.
+- **Slash commands** — `/checknow`, `/codes`, `/redeem`, and `/testpost`
+  (admin-only: posts the current active codes to the channel now, for testing).
 - **Dockerized** — `docker compose up -d` and you're running.
 
 ## Install on Ubuntu 24.04 from a release tarball

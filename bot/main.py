@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
 
 from .aggregator import Aggregator
@@ -158,6 +159,42 @@ def _register_commands(bot: CodeBot) -> None:
         )
         embed.set_footer(text="Redeem at the official page (link in title).")
         await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @bot.tree.command(
+        name="testpost",
+        description="(Admin) Post the current active codes to the channel now, for testing.",
+    )
+    @app_commands.default_permissions(administrator=True)
+    async def testpost(interaction: discord.Interaction) -> None:
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        codes = await bot.aggregator.gather()
+        if not codes:
+            await interaction.followup.send("No active codes found to post right now.", ephemeral=True)
+            return
+
+        channel = bot.get_channel(bot.config.channel_id)
+        if channel is None:
+            try:
+                channel = await bot.fetch_channel(bot.config.channel_id)
+            except Exception as exc:
+                await interaction.followup.send(f"Cannot reach the configured channel: {exc}", ephemeral=True)
+                return
+
+        posted = 0
+        for code in codes:
+            try:
+                # Test posts deliberately skip the role ping and are NOT recorded
+                # as "seen", so normal posting behaviour is unaffected.
+                await channel.send(embed=bot._embed(code))  # type: ignore[union-attr]
+                posted += 1
+            except Exception as exc:
+                log.error("testpost failed for %s: %s", code.code, exc)
+
+        await interaction.followup.send(
+            f"Posted {posted} code(s) to <#{bot.config.channel_id}> for testing "
+            f"(not marked as seen, no role ping).",
+            ephemeral=True,
+        )
 
     @bot.tree.command(name="redeem", description="Get the official Wuthering Waves redemption link.")
     async def redeem(interaction: discord.Interaction) -> None:
